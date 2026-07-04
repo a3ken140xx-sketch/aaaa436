@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `&copy; ${new Date().getFullYear()} CrazyTeam. جميع الحقوق محفوظة. غير مرتبط بديسكورد.`;
 
   // ===== AUTH SYSTEM =====
-  const API_URL = 'http://localhost:3001/api';
+  const API_URL = '/api';
   let currentUser = JSON.parse(localStorage.getItem('crazyteam_user') || 'null');
 
   const authOverlay = document.getElementById('authOverlay');
