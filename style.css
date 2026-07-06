@@ -25,44 +25,6 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Blue (default) */
-[data-theme="black-white-gold"] {
-  --accent-1: #FFD700;
-  --accent-2: #DAA520;
-  --accent-3: #B8860B;
-  --accent-4: #FFA500;
-  --glow-1: rgba(255, 215, 0, 0.3);
-  --glow-2: rgba(218, 165, 32, 0.3);
-  --glow-3: rgba(184, 134, 11, 0.3);
-}
-[data-theme="black-red"] {
-  --accent-1: #FF4444;
-  --accent-2: #DC143C;
-  --accent-3: #8B0000;
-  --accent-4: #FF0000;
-  --glow-1: rgba(255, 68, 68, 0.3);
-  --glow-2: rgba(220, 20, 60, 0.3);
-  --glow-3: rgba(139, 0, 0, 0.3);
-}
-[data-theme="blue"] {
-  --accent-1: #4488ff;
-  --accent-2: #3366ff;
-  --accent-3: #00aaff;
-  --accent-4: #6644ff;
-  --glow-1: rgba(68, 136, 255, 0.3);
-  --glow-2: rgba(51, 102, 255, 0.3);
-  --glow-3: rgba(0, 170, 255, 0.3);
-}
-[data-theme="black-white"] {
-  --accent-1: #ffffff;
-  --accent-2: #cccccc;
-  --accent-3: #999999;
-  --accent-4: #666666;
-  --glow-1: rgba(255, 255, 255, 0.3);
-  --glow-2: rgba(204, 204, 204, 0.3);
-  --glow-3: rgba(153, 153, 153, 0.3);
-}
-
 html {
   scroll-behavior: smooth;
 }
@@ -1364,62 +1326,38 @@ a {
 .tool-card:nth-child(7) { animation-delay: 0.7s; }
 .tool-card:nth-child(8) { animation-delay: 0.8s; }
 
-/*** THEME SWITCHER ***/
-+.theme-switcher {
-+  position: relative;
-+  margin-right: 15px;
-+  cursor: pointer;
-+}
-+
-+.theme-switcher > i {
-+  font-size: 18px;
-+  color: var(--text-secondary);
-+  transition: color var(--transition);
-+}
-+
-+.theme-switcher:hover > i,
-+.theme-switcher.active > i {
-+  color: var(--accent-1);
-+}
-+
-+.theme-options {
-+  display: none;
-+  position: absolute;
-+  top: 100%;
-+  left: 50%;
-+  transform: translateX(-50%);
-+  background: var(--bg-card);
-+  border: 1px solid rgba(114, 137, 218, 0.2);
-+  border-radius: 12px;
-+  padding: 8px;
-+  gap: 6px;
-+  z-index: 100;
-+  flex-direction: column;
-+  margin-top: 10px;
-+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-+}
-+
-+.theme-switcher.active .theme-options {
+/*** THEME BUTTONS ***/
++.theme-btns {
 +  display: flex;
++  gap: 5px;
++  margin-right: 15px;
 +}
 +
 +.theme-btn {
-+  width: 32px;
-+  height: 32px;
-+  border-radius: 8px;
-+  border: 2px solid transparent;
++  width: 28px;
++  height: 28px;
++  border-radius: 50%;
++  border: 2px solid rgba(255,255,255,0.2);
 +  cursor: pointer;
-+  transition: all var(--transition);
++  transition: all 0.3s;
++  padding: 0;
++  outline: none;
 +}
 +
 +.theme-btn:hover {
-+  transform: scale(1.15);
++  transform: scale(1.2);
++  border-color: #fff;
++}
++
++.theme-btn.active-theme {
++  border-color: #fff;
++  box-shadow: 0 0 10px rgba(255,255,255,0.5);
 +}
 +
 +.theme-btn[data-theme="blue"] { background: linear-gradient(135deg, #4488ff, #6644ff); }
 +.theme-btn[data-theme="black-white-gold"] { background: linear-gradient(135deg, #FFD700, #DAA520); }
 +.theme-btn[data-theme="black-red"] { background: linear-gradient(135deg, #FF4444, #8B0000); }
-+.theme-btn[data-theme="black-white"] { background: linear-gradient(135deg, #ffffff, #666666); }
++.theme-btn[data-theme="black-white"] { background: linear-gradient(135deg, #e0e0e0, #888888); }
 +
 +/*** RIPPLE EFFECT ***/
 .ripple {
