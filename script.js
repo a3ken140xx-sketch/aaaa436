@@ -1,35 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // THEME SWITCHER
-  function hexToRgb(hex) {
-    const v = parseInt(hex.slice(1), 16);
-    return `${(v>>16)&255}, ${(v>>8)&255}, ${v&255}`;
-  }
-  const themes = {
-    blue:       { a1:'#4488ff', a2:'#3366ff', a3:'#00aaff', a4:'#6644ff' },
-    'black-white-gold': { a1:'#FFD700', a2:'#DAA520', a3:'#B8860B', a4:'#FFA500' },
-    'black-red': { a1:'#FF4444', a2:'#DC143C', a3:'#8B0000', a4:'#FF0000' },
-    'black-white': { a1:'#e0e0e0', a2:'#bbbbbb', a3:'#999999', a4:'#777777' }
-  };
-  function applyTheme(theme) {
-    const t = themes[theme] || themes.blue;
-    const root = document.documentElement;
-    root.style.setProperty('--accent-1', t.a1);
-    root.style.setProperty('--accent-2', t.a2);
-    root.style.setProperty('--accent-3', t.a3);
-    root.style.setProperty('--accent-4', t.a4);
-    root.style.setProperty('--glow-1', `rgba(${hexToRgb(t.a1)}, 0.3)`);
-    root.style.setProperty('--glow-2', `rgba(${hexToRgb(t.a2)}, 0.3)`);
-    root.style.setProperty('--glow-3', `rgba(${hexToRgb(t.a3)}, 0.3)`);
-    localStorage.setItem('crazyteam_theme', theme);
-    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
-    document.querySelector(`.theme-btn[data-theme="${theme}"]`)?.classList.add('active-theme');
-  }
-  applyTheme(localStorage.getItem('crazyteam_theme') || 'blue');
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
-  });
-
   // LOADER
   setTimeout(() => {
     document.querySelector('.loader-wrapper').classList.add('hidden');
