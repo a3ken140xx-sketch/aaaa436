@@ -7,6 +7,11 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
+[[redirects]]
+  from = "/hello"
+  to = "/.netlify/functions/hello"
+  status = 200
+
 # Required environment variables:
 # SUPABASE_URL     — https://app.supabase.com/project/<id>/settings/api
 # SUPABASE_KEY     — anon/public key (same page)
