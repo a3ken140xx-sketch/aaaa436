@@ -37,6 +37,7 @@
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#stats" class="nav-link">الإحصائيات</a>
         <a href="#testimonials" class="nav-link">التقييمات</a>
+        <a href="#" class="nav-link admin-only" id="adminNavLink" style="display:none;">لوحة التحكم</a>
 
         <div class="nav-auth-mobile">
           <div class="auth-logged-out">
@@ -499,6 +500,32 @@
       <p>&copy; 2026 CrazyTeam. جميع الحقوق محفوظة. غير مرتبط بديسكورد.</p>
     </div>
   </footer>
+
+  <!-- Admin Panel Modal -->
+  <div class="auth-overlay" id="adminOverlay" style="z-index:2000;"></div>
+  <div class="auth-modal" id="adminModal" style="z-index:2001;max-width:600px;">
+    <div class="auth-modal-content">
+      <div class="auth-close" id="closeAdmin">&times;</div>
+      <div class="auth-header">
+        <div class="auth-logo">C</div>
+        <h2>لوحة التحكم</h2>
+        <p>مرحباً يا أدمن 👑</p>
+      </div>
+      <div style="padding:20px 0;">
+        <div id="adminStats" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+          <div style="background:rgba(114,137,218,0.1);padding:20px;border-radius:12px;text-align:center;">
+            <div style="font-size:32px;font-weight:700;color:var(--accent-1);" id="adminUserCount">0</div>
+            <div style="font-size:13px;color:var(--text-muted);">المستخدمين</div>
+          </div>
+          <div style="background:rgba(114,137,218,0.1);padding:20px;border-radius:12px;text-align:center;">
+            <div style="font-size:32px;font-weight:700;color:var(--accent-1);" id="adminToolCount">0</div>
+            <div style="font-size:13px;color:var(--text-muted);">الأدوات</div>
+          </div>
+        </div>
+        <div id="adminUsersList" style="max-height:300px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="scroll-top">
     <i class="fas fa-arrow-up"></i>

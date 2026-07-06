@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const [dRes, uRes, vRes] = await Promise.all([
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/downloads`).then(r => r.json()),
-        fetch(`/api/stats/users`).then(r => r.json()),
+        fetch(`https://api.countapi.xyz/get/${STATS_NS}/users`).then(r => r.json()),
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/visitors`).then(r => r.json())
       ]);
       setStat('downloads', dRes.value || 0);
@@ -331,10 +331,26 @@ document.addEventListener('DOMContentLoaded', () => {
   let pendingLastName = '';
   let pendingAction = ''; // 'signup' or 'login'
 
+  let isAdmin = false;
+
+  async function checkAdmin() {
+    if (!currentUser) { isAdmin = false; document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none'); return; }
+    try {
+      const res = await fetch(`${API_URL}/check-admin`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: currentUser.email })
+      });
+      const d = await res.json();
+      isAdmin = d.admin;
+    } catch { isAdmin = false; }
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
+  }
+
   function updateAuthUI() {
     document.querySelectorAll('.auth-logged-out').forEach(el => el.style.display = currentUser ? 'none' : '');
     document.querySelectorAll('.auth-logged-in').forEach(el => el.style.display = currentUser ? '' : 'none');
     document.querySelectorAll('.user-email-display').forEach(el => el.textContent = currentUser ? currentUser.email : '');
+    checkAdmin();
   }
 
   function requireAuth(e, callback) {
@@ -658,8 +674,39 @@ document.addEventListener('DOMContentLoaded', () => {
     setBtnLoading(btn, false);
   });
 
+  // ----- ADMIN PANEL -----
+  async function loadAdminPanel() {
+    const userCount = document.querySelectorAll('[data-stat="users"]')[0]?.textContent || '0';
+    document.getElementById('adminUserCount').textContent = userCount;
+    document.getElementById('adminToolCount').textContent = document.querySelectorAll('.tool-card').length;
+
+    const list = document.getElementById('adminUsersList');
+    try {
+      const res = await fetch(`${API_URL}/stats/users`);
+      const d = await res.json();
+      list.innerHTML = `<div style="color:var(--text-secondary);font-size:14px;">عدد المستخدمين المسجلين: ${d.value || 0}</div>`;
+    } catch {
+      list.innerHTML = '<div style="color:var(--text-muted);">تعذر تحميل البيانات</div>';
+    }
+  }
+
+  document.getElementById('adminNavLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!isAdmin) return;
+    loadAdminPanel();
+    document.getElementById('adminOverlay').classList.add('active');
+    document.getElementById('adminModal').classList.add('active');
+  });
+  document.getElementById('closeAdmin')?.addEventListener('click', () => {
+    document.getElementById('adminOverlay').classList.remove('active');
+    document.getElementById('adminModal').classList.remove('active');
+  });
+  document.getElementById('adminOverlay')?.addEventListener('click', () => {
+    document.getElementById('adminOverlay').classList.remove('active');
+    document.getElementById('adminModal').classList.remove('active');
+  });
+
   // Init auth UI
   updateAuthUI();
-
 
 });

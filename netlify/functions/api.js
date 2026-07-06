@@ -204,6 +204,12 @@ app.post('/api/verify-login-code', async (req, res) => {
   }
 });
 
+const ADMIN_EMAIL = 'a3ken140xx@gmail.com';
+
+app.post('/api/check-admin', (req, res) => {
+  res.json({ admin: req.body.email === ADMIN_EMAIL });
+});
+
 app.get('/api/stats/users', async (req, res) => {
   try {
     if (supabase) {
