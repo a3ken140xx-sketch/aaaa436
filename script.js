@@ -592,6 +592,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('#verifyModal .auth-header h2').textContent = 'تفعيل البريد الإلكتروني';
       document.querySelector('#verifyModal .auth-header p').textContent = 'تم إرسال كود التفعيل إلى بريدك الإلكتروني';
       document.getElementById('verifyEmailDisplay').textContent = email;
+      // Show code fallback if email failed
+      const codeEl = document.getElementById('verifyCodeDisplay');
+      if (codeEl && data.code) { codeEl.textContent = 'الكود: ' + data.code; codeEl.style.display = 'block'; }
       hideAllModals();
       showModal(verifyModal);
       showToast('تم إرسال كود التفعيل إلى بريدك الإلكتروني', 'success');
