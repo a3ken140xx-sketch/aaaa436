@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const [dRes, uRes, vRes] = await Promise.all([
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/downloads`).then(r => r.json()),
-        fetch(`https://api.countapi.xyz/get/${STATS_NS}/users`).then(r => r.json()),
+        fetch(`${API_URL}/stats/users`).then(r => r.json()),
         fetch(`${API_URL}/visitors/count`).then(r => r.json())
       ]);
       setStat('downloads', dRes.value || 0);
