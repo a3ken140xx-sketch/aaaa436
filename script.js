@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // THEME SWITCHER
+  const savedTheme = localStorage.getItem('crazyteam_theme') || 'blue';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('crazyteam_theme', theme);
+    });
+  });
+
   // LOADER
   setTimeout(() => {
     document.querySelector('.loader-wrapper').classList.add('hidden');
