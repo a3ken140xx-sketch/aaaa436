@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const [dRes, uRes, vRes] = await Promise.all([
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/downloads`).then(r => r.json()),
-        fetch(`https://api.countapi.xyz/get/${STATS_NS}/users`).then(r => r.json()),
+        fetch(`/api/stats/users`).then(r => r.json()),
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/visitors`).then(r => r.json())
       ]);
       setStat('downloads', dRes.value || 0);
@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('crazyteam_user', JSON.stringify(currentUser));
       updateAuthUI();
       if (pendingAction === 'signup') {
-        incrementStat('users');
+        setTimeout(fetchStats, 500);
       }
       showToast(pendingAction === 'login' ? 'تم تسجيل الدخول بنجاح!' : 'تم تسجيل الحساب بنجاح!', 'success');
       hideAllModals();

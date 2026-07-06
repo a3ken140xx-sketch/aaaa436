@@ -204,6 +204,17 @@ app.post('/api/verify-login-code', async (req, res) => {
   }
 });
 
+app.get('/api/stats/users', async (req, res) => {
+  try {
+    if (supabase) {
+      const { count } = await supabase.from('users').select('*', { count: 'exact', head: true });
+      res.json({ value: count || 0 });
+    } else {
+      res.json({ value: Object.keys(usersMem).length });
+    }
+  } catch { res.json({ value: 0 }); }
+});
+
 let handler;
 
 async function getHandler() {
