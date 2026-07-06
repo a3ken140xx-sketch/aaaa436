@@ -10,10 +10,12 @@ exports.handler = async (event) => {
 
   // ---- Load heavy deps only after health check ----
   const bcrypt = require('bcryptjs');
+  const nodemailer = require('nodemailer');
   const { createClient } = require('@supabase/supabase-js');
   const sb = () => createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
   const body = (() => { try { return JSON.parse(event.body || '{}'); } catch { return {}; } })();
   const q = event.queryStringParameters || {};
+  const emailHtml = (code, title, subtitle) => `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;background:#0a0f19;padding:30px;border-radius:16px;max-width:500px;margin:auto;border:1px solid rgba(100,255,218,0.15);"><div style="text-align:center;margin-bottom:25px;"><div style="width:60px;height:60px;margin:0 auto 15px;background:linear-gradient(135deg,#64ffda,#00d4a3);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#0a0f19;">C</div><h1 style="color:#ffffff;font-size:22px;margin:0;">${title}</h1></div><p style="color:rgba(255,255,255,0.7);font-size:15px;text-align:center;">${subtitle}</p><div style="text-align:center;margin:25px 0;"><span style="font-size:36px;font-weight:900;color:#64ffda;letter-spacing:8px;font-family:'Courier New',monospace;text-shadow:0 0 20px rgba(100,255,218,0.3);">${code}</span></div><p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;">ينتهي الكود بعد 10 دقائق</p></div>`;
 
   try {
     // ---- LOGIN ----
@@ -31,13 +33,7 @@ exports.handler = async (event) => {
     // ---- CHECK ADMIN ----
     if (p === 'check-admin') return json({ admin: body.email === ADMIN_EMAIL });
 
-    // ---- RESET ADMIN PASSWORD (temp) ----
-    if (p === 'reset-admin-password') {
-      const hash = await bcrypt.hash('admin123', 10);
-      const { error } = await sb().from('users').update({ password_hash: hash }).eq('email', ADMIN_EMAIL);
-      if (error) return json({ error: error.message }, 500);
-      return json({ message: 'تم تغيير كلمة السر إلى: admin123' });
-    }
+
 
     // ---- STATS ----
     if (p === 'stats/users') { const { data } = await sb().from('users').select('id'); return json({ value: data ? data.length : 0 }); }
@@ -99,7 +95,11 @@ exports.handler = async (event) => {
       if (existing && existing.length) return json({ error: 'البريد الإلكتروني مستخدم بالفعل' }, 400);
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       await sb().from('verification_codes').insert({ email: body.email, code, type: 'signup', expires_at: new Date(Date.now() + 600000).toISOString() });
-      return json({ message: 'تم إرسال الكود', code });
+      try {
+        const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } });
+        await transporter.sendMail({ from: '"CrazyTeam" <noreply@crazyteam.com>', to: body.email, subject: 'كود تفعيل حساب CrazyTeam', html: emailHtml(code, 'مرحباً بك في CrazyTeam', 'كود التفعيل الخاص بك هو:') });
+      } catch (e) { console.error('Email send failed:', e); }
+      return json({ message: 'تم إرسال الكود' });
     }
 
     // ---- VERIFY CODE ----

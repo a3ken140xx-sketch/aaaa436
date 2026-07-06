@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pendingLastName = lastName;
       pendingAction = 'signup';
       document.querySelector('#verifyModal .auth-header h2').textContent = 'تفعيل البريد الإلكتروني';
-      document.querySelector('#verifyModal .auth-header p').innerHTML = 'كود التفعيل: <strong style="color:var(--accent-1);font-size:24px;letter-spacing:4px;">' + (data.code || '------') + '</strong>';
+      document.querySelector('#verifyModal .auth-header p').textContent = 'تم إرسال كود التفعيل إلى بريدك الإلكتروني';
       document.getElementById('verifyEmailDisplay').textContent = email;
       hideAllModals();
       showModal(verifyModal);
