@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // COUNTER ANIMATION
-  const counters = document.querySelectorAll('.hero-stat-num, .stat-num');
+  const counters = document.querySelectorAll('.stat-num');
 
   const counterObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
