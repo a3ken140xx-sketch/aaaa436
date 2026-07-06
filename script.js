@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setStat(key, value) {
     document.querySelectorAll(`[data-stat="${key}"]`).forEach(el => {
-      el.textContent = (key === 'tools' ? value : value.toLocaleString()) + '+';
+      el.textContent = (key === 'tools' ? value : value.toLocaleString());
     });
   }
 
