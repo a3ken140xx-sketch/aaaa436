@@ -172,47 +172,43 @@ document.addEventListener('DOMContentLoaded', () => {
     revealObserver.observe(el);
   });
 
-  // COUNTER ANIMATION
-  const counters = document.querySelectorAll('.stat-num');
+  // REAL STATS TRACKING
+  const STATS_NS = 'crazyteam';
 
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const target = entry.target;
-        const targetVal = parseFloat(target.getAttribute('data-target'));
-        const isFloat = targetVal % 1 !== 0;
-        const duration = 2000;
-        const startTime = performance.now();
-
-        function updateCounter(currentTime) {
-          const elapsed = currentTime - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const currentVal = eased * targetVal;
-
-          if (isFloat) {
-            target.textContent = currentVal.toFixed(1) + (targetVal === 4.9 ? '' : '+');
-          } else {
-            target.textContent = Math.floor(currentVal).toLocaleString() + '+';
-          }
-
-          if (progress < 1) {
-            requestAnimationFrame(updateCounter);
-          } else {
-            if (isFloat) {
-              target.textContent = targetVal + (targetVal === 4.9 ? '' : '+');
-            } else {
-              target.textContent = targetVal.toLocaleString() + '+';
-            }
-          }
-        }
-        requestAnimationFrame(updateCounter);
-        counterObserver.unobserve(target);
-      }
+  function setStat(key, value) {
+    document.querySelectorAll(`[data-stat="${key}"]`).forEach(el => {
+      el.textContent = (key === 'tools' ? value : value.toLocaleString()) + '+';
     });
-  }, { threshold: 0.5 });
+  }
 
-  counters.forEach(counter => counterObserver.observe(counter));
+  function refreshTools() {
+    setStat('tools', document.querySelectorAll('.tool-card').length);
+  }
+
+  async function fetchStats() {
+    try {
+      const [dRes, uRes] = await Promise.all([
+        fetch(`https://api.countapi.xyz/get/${STATS_NS}/downloads`).then(r => r.json()),
+        fetch(`https://api.countapi.xyz/get/${STATS_NS}/users`).then(r => r.json())
+      ]);
+      setStat('downloads', dRes.value || 0);
+      setStat('users', uRes.value || 0);
+    } catch {
+      setStat('downloads', 0);
+      setStat('users', 0);
+    }
+    refreshTools();
+  }
+
+  async function incrementStat(key) {
+    try {
+      const res = await fetch(`https://api.countapi.xyz/hit/${STATS_NS}/${key}`);
+      const d = await res.json();
+      setStat(key, d.value);
+    } catch {}
+  }
+
+  fetchStats();
 
   // TYPING EFFECT
   const texts = ['CrazyTeam', 'أدوات ديسكورد', 'مودات احترافية', 'CRAZYTEAM'];
@@ -379,14 +375,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Lock tool buttons behind auth
-  document.querySelectorAll('.tool-btns a').forEach(btn => {
+  // Auth lock + download tracking for ALL download buttons
+  document.querySelectorAll('.tool-card .nitro-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
       if (!currentUser) {
         e.preventDefault();
         hideAllModals();
         showModal(loginModal);
-        showToast('يجب تسجيل الدخول أولاً للتحميل أو مشاهدة الشرح', 'error');
+        showToast('يجب تسجيل الدخول أولاً', 'error');
+        return;
+      }
+      if (this.querySelector('.fa-download') || this.textContent.includes('تحميل')) {
+        incrementStat('downloads');
       }
     });
   });
@@ -567,6 +567,9 @@ document.addEventListener('DOMContentLoaded', () => {
       currentUser = { email: pendingEmail };
       localStorage.setItem('crazyteam_user', JSON.stringify(currentUser));
       updateAuthUI();
+      if (pendingAction === 'signup') {
+        incrementStat('users');
+      }
       showToast(pendingAction === 'login' ? 'تم تسجيل الدخول بنجاح!' : 'تم تسجيل الحساب بنجاح!', 'success');
       hideAllModals();
       document.getElementById('signupForm').reset();
