@@ -226,6 +226,29 @@ app.put('/api/admin/users/:email/ban', async (req, res) => {
   catch { res.status(500).json({ error: 'فشل التحديث' }); }
 });
 
+// ---- Visitors ----
+app.post('/api/visitors', async (req, res) => {
+  try {
+    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+    const ua = req.headers['user-agent'] || '';
+    if (supabase) {
+      await supabase.from('visits').insert({ ip, user_agent: ua });
+      const { count } = await supabase.from('visits').select('*', { count: 'exact', head: true });
+      return res.json({ value: count || 1 });
+    }
+    return res.json({ value: 1 });
+  } catch (err) {
+    res.json({ value: 0 });
+  }
+});
+
+app.get('/api/visitors/count', async (req, res) => {
+  try {
+    if (supabase) { const { count } = await supabase.from('visits').select('*', { count: 'exact', head: true }); return res.json({ value: count || 0 }); }
+    res.json({ value: 0 });
+  } catch { res.json({ value: 0 }); }
+});
+
 let handler;
 async function getHandler() {
   if (!transporter) await initTransporter();

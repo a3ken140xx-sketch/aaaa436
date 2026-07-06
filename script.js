@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const [dRes, uRes, vRes] = await Promise.all([
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/downloads`).then(r => r.json()),
         fetch(`https://api.countapi.xyz/get/${STATS_NS}/users`).then(r => r.json()),
-        fetch(`https://api.countapi.xyz/get/${STATS_NS}/visitors`).then(r => r.json())
+        fetch(`${API_URL}/visitors/count`).then(r => r.json())
       ]);
       setStat('downloads', dRes.value || 0);
       setStat('users', uRes.value || 0);
@@ -263,6 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function incrementStat(key) {
     try {
+      if (key === 'visitors') {
+        const res = await fetch(`${API_URL}/visitors`, { method: 'POST' });
+        const d = await res.json();
+        setStat(key, d.value || 0);
+        return;
+      }
       const res = await fetch(`https://api.countapi.xyz/hit/${STATS_NS}/${key}`);
       const d = await res.json();
       setStat(key, d.value);
@@ -801,8 +807,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadAdminPanel() {
+    const v = document.querySelectorAll('[data-stat="visitors"]')[0]?.textContent || '0';
     document.getElementById('adminUserCount').textContent = document.querySelectorAll('[data-stat="users"]')[0]?.textContent || '0';
     document.getElementById('adminToolCount').textContent = document.querySelectorAll('[data-stat="tools"]')[0]?.textContent || '0';
+    document.getElementById('adminVisitorCount').textContent = v;
+    // جلب العدد الحقيقي من Supabase
+    try { const r = await fetch(`${API_URL}/visitors/count`); const d = await r.json(); document.getElementById('adminVisitorCount').textContent = d.value || 0; } catch {}
     showAdminTab('stats');
     loadAdminUsers();
     loadAdminTools();

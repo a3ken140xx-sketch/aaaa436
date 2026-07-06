@@ -32,3 +32,10 @@ CREATE TABLE IF NOT EXISTS tools (
   rating text DEFAULT '4.9',
   created_at timestamptz DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS visits (
+  id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  ip text DEFAULT '',
+  user_agent text DEFAULT '',
+  created_at timestamptz DEFAULT now()
+);
