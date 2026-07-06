@@ -6,3 +6,9 @@
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+
+# Required environment variables:
+# SUPABASE_URL     — https://app.supabase.com/project/<id>/settings/api
+# SUPABASE_KEY     — anon/public key (same page)
+# EMAIL_USER       — Gmail address for sending verification codes
+# EMAIL_PASS       — Gmail app password
