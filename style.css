@@ -1377,7 +1377,8 @@ a {
 +  transition: color var(--transition);
 +}
 +
-+.theme-switcher:hover > i {
++.theme-switcher:hover > i,
++.theme-switcher.active > i {
 +  color: var(--accent-1);
 +}
 +
@@ -1398,7 +1399,7 @@ a {
 +  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 +}
 +
-+.theme-switcher:hover .theme-options {
++.theme-switcher.active .theme-options {
 +  display: flex;
 +}
 +

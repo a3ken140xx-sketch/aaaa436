@@ -3,12 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // THEME SWITCHER
   const savedTheme = localStorage.getItem('crazyteam_theme') || 'blue';
   document.documentElement.setAttribute('data-theme', savedTheme);
+  const themeSwitcher = document.querySelector('.theme-switcher');
+  themeSwitcher.addEventListener('click', (e) => {
+    if (e.target.closest('.theme-btn')) return;
+    themeSwitcher.classList.toggle('active');
+  });
   document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const theme = btn.dataset.theme;
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('crazyteam_theme', theme);
+      themeSwitcher.classList.remove('active');
     });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.theme-switcher')) {
+      themeSwitcher.classList.remove('active');
+    }
   });
 
   // LOADER
