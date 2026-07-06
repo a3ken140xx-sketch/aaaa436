@@ -25,15 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
     document.querySelector(`.theme-btn[data-theme="${theme}"]`)?.classList.add('active-theme');
   }
-  function applyTheme(theme) {
-    const vars = themes[theme] || themes.blue;
-    for (const [key, val] of Object.entries(vars)) {
-      document.documentElement.style.setProperty(key, val);
-    }
-    localStorage.setItem('crazyteam_theme', theme);
-    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
-    document.querySelector(`.theme-btn[data-theme="${theme}"]`)?.classList.add('active-theme');
-  }
   applyTheme(localStorage.getItem('crazyteam_theme') || 'blue');
   document.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
