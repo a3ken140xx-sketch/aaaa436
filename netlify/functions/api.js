@@ -95,13 +95,15 @@ exports.handler = async (event) => {
       if (existing && existing.length) return json({ error: 'البريد الإلكتروني مستخدم بالفعل' }, 400);
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       await sb().from('verification_codes').insert({ email: body.email, code, type: 'signup', expires_at: new Date(Date.now() + 600000).toISOString() });
+      let emailSent = false;
       try {
         if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
           const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } });
           await transporter.sendMail({ from: '"CrazyTeam" <noreply@crazyteam.com>', to: body.email, subject: 'كود تفعيل حساب CrazyTeam', html: emailHtml(code, 'مرحباً بك في CrazyTeam', 'كود التفعيل الخاص بك هو:') });
+          emailSent = true;
         }
       } catch (e) { console.error('Email send failed:', e); }
-      return json({ message: 'تم إرسال الكود', code });
+      return json({ message: 'تم إرسال الكود', code, email_sent: emailSent });
     }
 
     // ---- VERIFY CODE ----
