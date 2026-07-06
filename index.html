@@ -503,16 +503,24 @@
 
   <!-- Admin Panel Modal -->
   <div class="auth-overlay" id="adminOverlay" style="z-index:2000;"></div>
-  <div class="auth-modal" id="adminModal" style="z-index:2001;max-width:600px;">
+  <div class="auth-modal" id="adminModal" style="z-index:2001;max-width:700px;">
     <div class="auth-modal-content">
       <div class="auth-close" id="closeAdmin">&times;</div>
       <div class="auth-header">
         <div class="auth-logo">C</div>
         <h2>لوحة التحكم</h2>
-        <p>مرحباً يا أدمن 👑</p>
+        <p>مرحباً أيها الأدمن</p>
       </div>
-      <div style="padding:20px 0;">
-        <div id="adminStats" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <button class="admin-tab-btn active-theme" data-tab="stats" onclick="showAdminTab('stats')">إحصائيات</button>
+        <button class="admin-tab-btn" data-tab="users" onclick="showAdminTab('users')">المستخدمين</button>
+        <button class="admin-tab-btn" data-tab="tools" onclick="showAdminTab('tools')">الأدوات</button>
+        <button class="admin-tab-btn" data-tab="addtool" onclick="showAdminTab('addtool')">إضافة أداة</button>
+      </div>
+      <!-- Tab: Stats -->
+      <div class="admin-tab" id="adminTabstats">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
           <div style="background:rgba(114,137,218,0.1);padding:20px;border-radius:12px;text-align:center;">
             <div style="font-size:32px;font-weight:700;color:var(--accent-1);" id="adminUserCount">0</div>
             <div style="font-size:13px;color:var(--text-muted);">المستخدمين</div>
@@ -522,7 +530,75 @@
             <div style="font-size:13px;color:var(--text-muted);">الأدوات</div>
           </div>
         </div>
+      </div>
+      <!-- Tab: Users -->
+      <div class="admin-tab" id="adminTabusers" style="display:none;">
         <div id="adminUsersList" style="max-height:300px;overflow-y:auto;"></div>
+      </div>
+      <!-- Tab: Tools List -->
+      <div class="admin-tab" id="adminTabtools" style="display:none;">
+        <div id="adminToolsList" style="max-height:300px;overflow-y:auto;"></div>
+      </div>
+      <!-- Tab: Add Tool -->
+      <div class="admin-tab" id="adminTabaddtool" style="display:none;">
+        <form id="adminAddToolForm" class="auth-form">
+          <div class="form-group">
+            <label>اسم الأداة</label>
+            <div class="input-wrapper">
+              <i class="fas fa-tag"></i>
+              <input type="text" id="toolName" placeholder="Nitro Generator" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>الوصف</label>
+            <div class="input-wrapper">
+              <i class="fas fa-align-left"></i>
+              <input type="text" id="toolDesc" placeholder="أداة لتوليد نيترو ديسكورد" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>رابط التحميل</label>
+            <div class="input-wrapper">
+              <i class="fas fa-link"></i>
+              <input type="url" id="toolUrl" placeholder="https://example.com/download" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>رابط الفيديو (YouTube) - اختياري</label>
+            <div class="input-wrapper">
+              <i class="fab fa-youtube"></i>
+              <input type="url" id="toolVid" placeholder="https://youtube.com/watch?v=...">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+            <div class="form-group">
+              <label>أيقونة</label>
+              <div class="input-wrapper">
+                <i class="fas fa-icons"></i>
+                <input type="text" id="toolIcon" placeholder="fa-shield-halved">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>tag1</label>
+              <div class="input-wrapper">
+                <input type="text" id="toolTag1" placeholder="جديد">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>tag2</label>
+              <div class="input-wrapper">
+                <input type="text" id="toolTag2" placeholder="v1.0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>التقييم</label>
+              <div class="input-wrapper">
+                <input type="text" id="toolRating" placeholder="4.9">
+              </div>
+            </div>
+          </div>
+          <button type="submit" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:10px;">إضافة الأداة</button>
+        </form>
       </div>
     </div>
   </div>

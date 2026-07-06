@@ -181,8 +181,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let dbTools = [];
+
+  async function loadToolsFromDB() {
+    try {
+      const res = await fetch(`${API_URL}/tools`);
+      dbTools = await res.json();
+      if (!dbTools.length) return;
+      const grid = document.querySelector('.tools-grid');
+      // Remove only dynamically added cards (data-db="true")
+      grid.querySelectorAll('.tool-card[data-db="true"]').forEach(el => el.remove());
+      dbTools.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'tool-card';
+        card.setAttribute('data-tilt', '');
+        card.dataset.db = 'true';
+        card.innerHTML = `
+          <div class="tool-glow"></div>
+          <div class="tool-icon"><i class="fas ${t.icon || 'fa-shield-halved'}" style="font-size:2rem;"></i></div>
+          <div class="tool-info">
+            <h3 class="tool-name">${escapeHtml(t.name)}</h3>
+            <p class="tool-desc">${escapeHtml(t.description)}</p>
+            <div class="tool-tags">
+              <span class="tool-tag">${escapeHtml(t.tag1 || 'جديد')}</span>
+              <span class="tool-tag">${escapeHtml(t.tag2 || 'v1.0')}</span>
+            </div>
+            <div class="tool-bottom">
+              <span class="tool-rating"><i class="fas fa-star"></i> ${escapeHtml(t.rating || '4.9')}</span>
+              <a href="${escapeHtml(t.download_url)}" target="_blank" class="nitro-btn tool-db-btn"><i class="fas fa-download"></i> تحميل</a>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+      // Re-init tilt and cursor effects
+      document.querySelectorAll('.tool-card[data-db="true"], a, button, .btn').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          cursor.style.transform = 'scale(2)';
+          follower.style.transform = 'scale(1.5)';
+          follower.style.borderColor = '#00b4d8';
+        });
+        el.addEventListener('mouseleave', () => {
+          cursor.style.transform = 'scale(1)';
+          follower.style.transform = 'scale(1)';
+          follower.style.borderColor = '#7289da';
+        });
+      });
+      // Bind download tracking
+      document.querySelectorAll('.tool-db-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          if (!currentUser) { e.preventDefault(); hideAllModals(); showModal(loginModal); showToast('يجب تسجيل الدخول أولاً', 'error'); return; }
+          incrementStat('downloads');
+        });
+      });
+    } catch {}
+    refreshTools();
+  }
+
   function refreshTools() {
-    setStat('tools', document.querySelectorAll('.tool-card').length);
+    const total = document.querySelectorAll('.tool-card').length;
+    setStat('tools', total);
   }
 
   async function fetchStats() {
@@ -213,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   fetchStats();
+  loadToolsFromDB();
 
   // TYPING EFFECT
   const texts = ['CrazyTeam', 'أدوات ديسكورد', 'مودات احترافية', 'CRAZYTEAM'];
@@ -675,20 +733,110 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ----- ADMIN PANEL -----
-  async function loadAdminPanel() {
-    const userCount = document.querySelectorAll('[data-stat="users"]')[0]?.textContent || '0';
-    document.getElementById('adminUserCount').textContent = userCount;
-    document.getElementById('adminToolCount').textContent = document.querySelectorAll('.tool-card').length;
+  function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
+  async function loadAdminUsers() {
     const list = document.getElementById('adminUsersList');
     try {
-      const res = await fetch(`${API_URL}/stats/users`);
-      const d = await res.json();
-      list.innerHTML = `<div style="color:var(--text-secondary);font-size:14px;">عدد المستخدمين المسجلين: ${d.value || 0}</div>`;
-    } catch {
-      list.innerHTML = '<div style="color:var(--text-muted);">تعذر تحميل البيانات</div>';
-    }
+      const res = await fetch(`${API_URL}/admin/users?admin=${encodeURIComponent(currentUser.email)}`);
+      const users = await res.json();
+      if (!users.length) { list.innerHTML = '<div style="color:var(--text-muted);text-align:center;">لا يوجد مستخدمين</div>'; return; }
+      list.innerHTML = users.map(u => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px;">
+          <div>
+            <div style="font-weight:600;">${escapeHtml(u.first_name)} ${escapeHtml(u.last_name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${escapeHtml(u.email)}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            ${u.email === currentUser.email ? '<span style="color:var(--accent-1);font-size:12px;">أنت</span>' : `
+              <button class="admin-ban-btn" data-email="${escapeHtml(u.email)}" data-banned="${u.banned}" style="padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:${u.banned ? '#2ecc71' : '#e74c3c'};color:#fff;">${u.banned ? 'رفع الحظر' : 'حظر'}</button>
+              <button class="admin-del-btn" data-email="${escapeHtml(u.email)}" style="padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:#c0392b;color:#fff;">حذف</button>
+            `}
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.admin-ban-btn').forEach(b => b.addEventListener('click', async () => {
+        await fetch(`${API_URL}/admin/users/${encodeURIComponent(b.dataset.email)}/ban`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminEmail: currentUser.email, banned: b.dataset.banned === 'false' }) });
+        loadAdminUsers();
+      }));
+      list.querySelectorAll('.admin-del-btn').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('حذف هذا المستخدم؟')) return;
+        await fetch(`${API_URL}/admin/users/${encodeURIComponent(b.dataset.email)}?admin=${encodeURIComponent(currentUser.email)}`, { method: 'DELETE' });
+        loadAdminUsers();
+      }));
+    } catch { list.innerHTML = '<div style="color:var(--text-muted);text-align:center;">تعذر تحميل المستخدمين</div>'; }
   }
+
+  async function loadAdminTools() {
+    const list = document.getElementById('adminToolsList');
+    try {
+      const res = await fetch(`${API_URL}/tools`);
+      const tools = await res.json();
+      if (!tools.length) { list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">لا يوجد أدوات. أضف أول أداة!</div>'; return; }
+      list.innerHTML = tools.map(t => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px;">
+          <div style="flex:1;">
+            <div style="font-weight:600;">${escapeHtml(t.name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${escapeHtml(t.description).slice(0, 60)}...</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="admin-edit-tool" data-id="${t.id}" style="padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:var(--accent-2);color:#fff;">تعديل</button>
+            <button class="admin-del-tool" data-id="${t.id}" style="padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:#c0392b;color:#fff;">حذف</button>
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.admin-del-tool').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('حذف هذه الأداة؟')) return;
+        await fetch(`${API_URL}/admin/tools/${b.dataset.id}?admin=${encodeURIComponent(currentUser.email)}`, { method: 'DELETE' });
+        loadAdminTools();
+      }));
+    } catch { list.innerHTML = '<div style="color:var(--text-muted);text-align:center;">تعذر تحميل الأدوات</div>'; }
+  }
+
+  window.showAdminTab = function(tab) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+    document.getElementById('adminTab' + tab).style.display = '';
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active-theme'));
+    document.querySelector(`.admin-tab-btn[data-tab="${tab}"]`)?.classList.add('active-theme');
+  }
+
+  async function loadAdminPanel() {
+    document.getElementById('adminUserCount').textContent = document.querySelectorAll('[data-stat="users"]')[0]?.textContent || '0';
+    document.getElementById('adminToolCount').textContent = document.querySelectorAll('[data-stat="tools"]')[0]?.textContent || '0';
+    showAdminTab('stats');
+    loadAdminUsers();
+    loadAdminTools();
+  }
+
+  // Add tool form
+  document.getElementById('adminAddToolForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'جاري الإضافة...';
+    try {
+      const res = await fetch(`${API_URL}/admin/tools`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminEmail: currentUser.email,
+          name: document.getElementById('toolName').value,
+          description: document.getElementById('toolDesc').value,
+          download_url: document.getElementById('toolUrl').value,
+          video_url: document.getElementById('toolVid').value,
+          icon: document.getElementById('toolIcon').value || 'fa-shield-halved',
+          tag1: document.getElementById('toolTag1').value || 'جديد',
+          tag2: document.getElementById('toolTag2').value || 'v1.0',
+          rating: document.getElementById('toolRating').value || '4.9'
+        })
+      });
+      const d = await res.json();
+      if (!res.ok) { alert(d.error); btn.disabled = false; btn.textContent = 'إضافة'; return; }
+      e.target.reset();
+      loadAdminTools();
+      refreshTools();
+      alert('تم إضافة الأداة!');
+    } catch { alert('فشل الإضافة'); }
+    btn.disabled = false; btn.textContent = 'إضافة';
+  });
 
   document.getElementById('adminNavLink')?.addEventListener('click', (e) => {
     e.preventDefault();
