@@ -1326,6 +1326,28 @@ a {
 .tool-card:nth-child(7) { animation-delay: 0.7s; }
 .tool-card:nth-child(8) { animation-delay: 0.8s; }
 
+/*** ADMIN TAB BUTTONS ***/
+.admin-tab-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(114,137,218,0.1);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.admin-tab-btn:hover {
+  background: rgba(114,137,218,0.2);
+  color: var(--text-color);
+}
+.admin-tab-btn.active-theme {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  border-color: transparent;
+}
+
 /*** RIPPLE EFFECT ***/
 .ripple {
   position: absolute;
