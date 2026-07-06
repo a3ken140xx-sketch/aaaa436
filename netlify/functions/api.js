@@ -31,6 +31,14 @@ exports.handler = async (event) => {
     // ---- CHECK ADMIN ----
     if (p === 'check-admin') return json({ admin: body.email === ADMIN_EMAIL });
 
+    // ---- RESET ADMIN PASSWORD (temp) ----
+    if (p === 'reset-admin-password') {
+      const hash = await bcrypt.hash('admin123', 10);
+      const { error } = await sb().from('users').update({ password_hash: hash }).eq('email', ADMIN_EMAIL);
+      if (error) return json({ error: error.message }, 500);
+      return json({ message: 'تم تغيير كلمة السر إلى: admin123' });
+    }
+
     // ---- STATS ----
     if (p === 'stats/users') { const { data } = await sb().from('users').select('id'); return json({ value: data ? data.length : 0 }); }
 
